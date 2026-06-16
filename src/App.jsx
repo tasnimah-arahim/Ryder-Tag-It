@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { KioskShell } from './components/KioskShell';
 import { Home } from './pages/Home';
-import { SelectArea } from './pages/SelectArea';
+import { SelectArea } from './pages/WhereIssue';
 import { ExactLocation } from './pages/ExactLocation';
 import { DeviceSelection } from './pages/DeviceSelection';
 
@@ -71,7 +71,7 @@ function App() {
         );
       case 'area':
         return (
-          <SelectArea
+          <WhereIssue
             language={language}
             data={report}
             onChange={updateReport}
