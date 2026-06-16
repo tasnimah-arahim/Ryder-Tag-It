@@ -1,122 +1,118 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState } from 'react';
+import { KioskShell } from './components/KioskShell';
+import { Home } from './pages/Home';
+import { SelectArea } from './pages/SelectArea';
+import { ExactLocation } from './pages/ExactLocation';
+import { DeviceSelection } from './pages/DeviceSelection';
+
+
+// this is the deault state, every field gets reset to this when user goes back to home.
+const EMPTY_REPORT = {
+  language: 'en',
+  area: '',
+  stationNumber: '',
+  workstationNumber: '',
+  dockDoorNumber: '',
+  device: '',
+  reporterName: '',
+  issueCategory: '',
+  additionalComments: '',
+};
+
+const SCREEN_ORDER = [
+  'welcome',
+  'area',
+  'location',
+  'device',
+];
 
 function App() {
-  const [count, setCount] = useState(0)
+  // this will track the screen that is being shown
+  const [screen, setScreen] = useState('welcome');
+  // language user selects, default is English
+  const [language, setLanguage] = useState('en');
+  // this will hold all the data the user inputs, it gets reset when user goes back to home
+  const [report, setReport] = useState({ ...EMPTY_REPORT });
+
+
+  const updateReport = (updates) => {
+    // merge the updates into the report, ... prev is used to keep the existing values in report and only update the ones that are changed
+    setReport((prev) => ({ ...prev, ...updates }));
+  };
+
+  // screens current position in screen_order is found, functions made to move back or forward
+  const goNext = () => {
+    const idx = SCREEN_ORDER.indexOf(screen);
+    if (idx < SCREEN_ORDER.length - 1) setScreen(SCREEN_ORDER[idx + 1]);
+  };
+
+  const goBack = () => {
+    const idx = SCREEN_ORDER.indexOf(screen);
+    if (idx > 0) setScreen(SCREEN_ORDER[idx - 1]);
+  };
+
+  // resets reports, goes back to welcome screen
+  const handleHome = () => {
+    setScreen('welcome');
+    setReport({ ...EMPTY_REPORT });
+  };
+
+  // depending on the value of screen, the corresponding component is rendered, 
+  // props are passed down to each component to manage state and navigation
+  const renderScreen = () => {
+    switch (screen) {
+      case 'welcome':
+        return (
+          <Home
+            language={language}
+            onStart={() => setScreen('area')}
+            onLanguageChange={setLanguage}
+          />
+        );
+      case 'area':
+        return (
+          <SelectArea
+            language={language}
+            data={report}
+            onChange={updateReport}
+            onNext={goNext}
+          />
+        );
+      case 'location':
+        return (
+          <ExactLocation
+            language={language}
+            data={report}
+            onChange={updateReport}
+            onNext={goNext}
+          />
+        );
+      case 'device':
+        return (
+          <DeviceSelection
+            language={language}
+            data={report}
+            onChange={updateReport}
+            onNext={goNext}
+          />
+        );
+      default:
+        return null;
+    }
+  };
+
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+    <KioskShell
+      currentScreen={screen}
+      language={language}
+      onBack={goBack}
+      onHome={handleHome}
+      onLanguageChange={setLanguage}
+    >
+      {renderScreen()}
+    </KioskShell>
+  );
 }
 
-export default App
+export default App;
