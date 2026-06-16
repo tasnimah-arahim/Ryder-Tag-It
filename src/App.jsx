@@ -4,6 +4,7 @@ import { Home } from './pages/Home';
 import { WhereIssue } from './pages/WhereIssue';
 import { ExactLocation } from './pages/ExactLocation';
 import { DeviceSelection } from './pages/DeviceSelection';
+import { IssueClassification } from './pages/IssueClassification';
 
 
 // this is the deault state, every field gets reset to this when user goes back to home.
@@ -24,6 +25,7 @@ const SCREEN_ORDER = [
   'area',
   'location',
   'device',
+  'classification',
 ];
 
 function App() {
@@ -90,6 +92,15 @@ function App() {
       case 'device':
         return (
           <DeviceSelection
+            language={language}
+            data={report}
+            onChange={updateReport}
+            onNext={goNext}
+          />
+        );
+      case 'classification':
+        return (
+          <IssueClassification
             language={language}
             data={report}
             onChange={updateReport}
