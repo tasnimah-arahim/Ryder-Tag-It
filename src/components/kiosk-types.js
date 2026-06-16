@@ -1,4 +1,5 @@
 // Steps shown in the header (excludes welcome and confirmation)
+// Steps shown in the header (excludes welcome and confirmation)
 export const FLOW_STEPS = ['area', 'location', 'device', 'classification', 'review'];
 
 export const TRANSLATIONS = {
@@ -41,6 +42,18 @@ export const TRANSLATIONS = {
     typeHere: 'Type here...',
     mostCommon: 'Most Common',
     fillAtLeastOne: 'Please fill in at least one field',
+    areas: {
+      inbound: 'Inbound',
+      outbound: 'Outbound',
+      mainFrontOffice: 'Main Front Office',
+      dockDoor: 'Dock Door',
+      packingArea: 'Packing Area',
+      shippingArea: 'Shipping Area',
+      receivingArea: 'Receiving Area',
+      stagingArea: 'Staging Area',
+      mobileWorkstation: 'Mobile Workstation',
+      other: 'Other',
+    },
   },
   es: {
     appName: 'RyderTag',
@@ -81,6 +94,18 @@ export const TRANSLATIONS = {
     typeHere: 'Escriba aquí...',
     mostCommon: 'Más Común',
     fillAtLeastOne: 'Por favor complete al menos un campo',
+    areas: {
+      inbound: 'Entrada',
+      outbound: 'Salida',
+      mainFrontOffice: 'Oficina Principal',
+      dockDoor: 'Puerta de Muelle',
+      packingArea: 'Área de Empaque',
+      shippingArea: 'Área de Envío',
+      receivingArea: 'Área de Recepción',
+      stagingArea: 'Área de Preparación',
+      mobileWorkstation: 'Estación de Trabajo Móvil',
+      other: 'Otro',
+    },
   },
   ht: {
     appName: 'RyderTag',
@@ -121,6 +146,18 @@ export const TRANSLATIONS = {
     typeHere: 'Ekri isit...',
     mostCommon: 'Pi Souvan',
     fillAtLeastOne: 'Tanpri ranpli omwen yon chan',
+    areas: {
+      inbound: 'Antre',
+      outbound: 'Sòti',
+      mainFrontOffice: 'Biwo Prensipal',
+      dockDoor: 'Pòt Dok',
+      packingArea: 'Zòn Anbalaj',
+      shippingArea: 'Zòn Ekspedisyon',
+      receivingArea: 'Zòn Resepsyon',
+      stagingArea: 'Zòn Preparasyon',
+      mobileWorkstation: 'Estasyon Travay Mobil',
+      other: 'Lòt',
+    },
   },
   pt: {
     appName: 'RyderTag',
@@ -161,6 +198,18 @@ export const TRANSLATIONS = {
     typeHere: 'Digite aqui...',
     mostCommon: 'Mais Comum',
     fillAtLeastOne: 'Por favor preencha pelo menos um campo',
+    areas: {
+      inbound: 'Entrada',
+      outbound: 'Saída',
+      mainFrontOffice: 'Escritório Principal',
+      dockDoor: 'Porta de Doca',
+      packingArea: 'Área de Embalagem',
+      shippingArea: 'Área de Envio',
+      receivingArea: 'Área de Recebimento',
+      stagingArea: 'Área de Preparação',
+      mobileWorkstation: 'Estação de Trabalho Móvel',
+      other: 'Outro',
+    },
   },
 };
 
