@@ -20,6 +20,7 @@ export function AuthGate({ onSelectYubiKey, onSelectOkta }) {
         color: 'rgba(255,255,255,0.8)',
         fontSize: 'clamp(14px, 2vw, 18px)',
         fontWeight: 400,
+        marginTop: 'clamp(12px, 2vh, 20px)',
         marginBottom: 'clamp(24px, 4vh, 48px)',
         letterSpacing: '0.01em',
       }}>
