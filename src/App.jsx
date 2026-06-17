@@ -8,9 +8,10 @@ import { IssueClassification } from './pages/IssueClassification';
 import { Submit } from './pages/Submit';
 import { Confirmation } from './pages/Confirmation';
 
+import { AuthGate } from './pages/AuthGate';
+import { YubiKeySignIn } from './pages/YubiKeySignIn';
+import { OktaSignIn } from './pages/OktaSignIn';
 
-
-// this is the deault state, every field gets reset to this when user goes back to home.
 const EMPTY_REPORT = {
   language: 'en',
   area: '',
@@ -34,20 +35,41 @@ const SCREEN_ORDER = [
 ];
 
 function App() {
-  // this will track the screen that is being shown
-  const [screen, setScreen] = useState('welcome');
-  // language user selects, default is English
+  const [screen,   setScreen]   = useState('welcome');
   const [language, setLanguage] = useState('en');
-  // this will hold all the data the user inputs, it gets reset when user goes back to home
-  const [report, setReport] = useState({ ...EMPTY_REPORT });
+  const [report,   setReport]   = useState({ ...EMPTY_REPORT });
 
+  // ── Auth state ──────────────────────────────────────────────────────────────
+  // authPhase: 'gate' | 'yubikey' | 'okta' | 'done'
+  // Lazily detect an Auth0 redirect callback (code+state in URL) on first render
+  // so OktaSignIn can call handleRedirectCallback() before the params disappear.
+  const [authPhase, setAuthPhase] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return (params.has('code') && params.has('state')) || params.has('error')
+      ? 'okta'
+      : 'gate';
+  });
+  const [authUser, setAuthUser] = useState(null);
 
-  const updateReport = (updates) => {
-    // merge the updates into the report, ... prev is used to keep the existing values in report and only update the ones that are changed
-    setReport((prev) => ({ ...prev, ...updates }));
-  };
+  function handleAuthSuccess(authInfo) {
+    setAuthUser(authInfo);
+    setAuthPhase('done');
+  }
 
-  // screens current position in screen_order is found, functions made to move back or forward
+  // Resets auth + report and returns to the auth gate.
+  function handleSignOut() {
+    if (authUser?.onSignOut) {
+      authUser.onSignOut(); // Auth0: redirects browser to logout endpoint
+    }
+    setAuthUser(null);
+    setAuthPhase('gate');
+    setReport({ ...EMPTY_REPORT });
+    setScreen('welcome');
+  }
+
+  // ── Kiosk navigation ────────────────────────────────────────────────────────
+  const updateReport = (updates) => setReport(prev => ({ ...prev, ...updates }));
+
   const goNext = () => {
     const idx = SCREEN_ORDER.indexOf(screen);
     if (idx < SCREEN_ORDER.length - 1) setScreen(SCREEN_ORDER[idx + 1]);
@@ -58,15 +80,13 @@ function App() {
     if (idx > 0) setScreen(SCREEN_ORDER[idx - 1]);
   };
 
-  // resets reports, goes back to welcome screen
+  // Resets the current report/screen but keeps the user authenticated.
   const handleHome = () => {
     setScreen('welcome');
     setReport({ ...EMPTY_REPORT });
   };
 
-  // depending on the value of screen, the corresponding component is rendered, 
-  // props are passed down to each component to manage state and navigation
-  const renderScreen = () => {
+  const renderKioskScreen = () => {
     switch (screen) {
       case 'welcome':
         return (
@@ -74,6 +94,7 @@ function App() {
             language={language}
             onStart={() => setScreen('area')}
             onLanguageChange={setLanguage}
+            onSignOut={handleSignOut}
           />
         );
       case 'area':
@@ -136,7 +157,35 @@ function App() {
     }
   };
 
+  // ── Auth gate (renders before the kiosk shell) ───────────────────────────
+  if (authPhase === 'gate') {
+    return (
+      <AuthGate
+        onSelectYubiKey={() => setAuthPhase('yubikey')}
+        onSelectOkta={() => setAuthPhase('okta')}
+      />
+    );
+  }
 
+  if (authPhase === 'yubikey') {
+    return (
+      <YubiKeySignIn
+        onSuccess={handleAuthSuccess}
+        onBack={() => setAuthPhase('gate')}
+      />
+    );
+  }
+
+  if (authPhase === 'okta') {
+    return (
+      <OktaSignIn
+        onSuccess={handleAuthSuccess}
+        onBack={() => setAuthPhase('gate')}
+      />
+    );
+  }
+
+  // ── Kiosk flow (auth === 'done') ─────────────────────────────────────────
   return (
     <KioskShell
       currentScreen={screen}
@@ -144,8 +193,10 @@ function App() {
       onBack={goBack}
       onHome={handleHome}
       onLanguageChange={setLanguage}
+      onSignOut={handleSignOut}
+      authUser={authUser}
     >
-      {renderScreen()}
+      {renderKioskScreen()}
     </KioskShell>
   );
 }

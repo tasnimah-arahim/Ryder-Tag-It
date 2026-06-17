@@ -8,7 +8,7 @@ const LANG_OPTIONS = [
   { value: 'pt', label: 'Português' },
 ];
 
-export function Home({ language, onStart, onLanguageChange }) {
+export function Home({ language, onStart, onLanguageChange, onSignOut }) {
   const t = TRANSLATIONS[language] ?? TRANSLATIONS['en'];
 
   return (
@@ -92,6 +92,25 @@ export function Home({ language, onStart, onLanguageChange }) {
       >
         {t.startReport}
       </button>
+
+      {onSignOut && (
+        <button
+          onClick={onSignOut}
+          style={{
+            marginTop: '20px',
+            background: 'none',
+            border: 'none',
+            color: 'rgba(255,255,255,0.5)',
+            fontSize: '13px',
+            fontWeight: 600,
+            cursor: 'pointer',
+            textDecoration: 'underline',
+            textUnderlineOffset: '3px',
+          }}
+        >
+          Sign Out
+        </button>
+      )}
     </div>
   );
 }

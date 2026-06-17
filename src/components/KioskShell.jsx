@@ -1,5 +1,5 @@
 import {ArrowLeft, Home} from 'lucide-react';
-import {FLOW_STEPS, TRANSLATIONS} from './kiosk-types';
+import {FLOW_STEPS} from './kiosk-types';
 
 const LANG_LABELS = {
     en: 'EN',
@@ -15,8 +15,9 @@ export function KioskShell({
   onBack,
   onHome,
   onLanguageChange,
+  onSignOut,
+  authUser,
 }) {
-  const t = TRANSLATIONS[language];
   const isWelcome = currentScreen === 'welcome';
   const isConfirmation = currentScreen === 'confirmation';
   const showHeader = !isWelcome;
@@ -91,6 +92,24 @@ export function KioskShell({
                 {LANG_LABELS[lang]}
               </button>
             ))}
+            {onSignOut && (
+              <button
+                onClick={onSignOut}
+                className="rounded px-2 py-1 ml-2 transition-all"
+                title={authUser?.name ? `Signed in as ${authUser.name}` : 'Sign out'}
+                style={{
+                  background: 'transparent',
+                  color: '#9a9a9a',
+                  fontWeight: 700,
+                  fontSize: '11px',
+                  borderLeft: '1px solid #e8e8e8',
+                  paddingLeft: '10px',
+                  marginLeft: '6px',
+                }}
+              >
+                Sign Out
+              </button>
+            )}
           </div>
         </header>
       )}
