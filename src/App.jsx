@@ -4,6 +4,10 @@ import { Home } from './pages/Home';
 import { WhereIssue } from './pages/WhereIssue';
 import { ExactLocation } from './pages/ExactLocation';
 import { DeviceSelection } from './pages/DeviceSelection';
+import { IssueClassification } from './pages/IssueClassification';
+import { Submit } from './pages/Submit';
+import { Confirmation } from './pages/Confirmation';
+
 
 
 // this is the deault state, every field gets reset to this when user goes back to home.
@@ -24,6 +28,9 @@ const SCREEN_ORDER = [
   'area',
   'location',
   'device',
+  'classification',
+  'review',
+  'confirmation',
 ];
 
 function App() {
@@ -96,6 +103,34 @@ function App() {
             onNext={goNext}
           />
         );
+      case 'classification':
+        return (
+          <IssueClassification
+            language={language}
+            data={report}
+            onChange={updateReport}
+            onNext={goNext}
+          />
+        );
+      case 'review':
+        return (
+          <Submit
+            language={language}
+            data={report}
+            onEdit={(s) => setScreen(s)}
+            onSubmit={() => setScreen('confirmation')}
+          />
+        );
+      case 'confirmation':
+        return (
+          <Confirmation
+            language={language}
+            data={report}
+            onReportAnother={() => { setReport({ ...EMPTY_REPORT }); setScreen('area'); }}
+            onHome={handleHome}
+          />
+        );
+
       default:
         return null;
     }
