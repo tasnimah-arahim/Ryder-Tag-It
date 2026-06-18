@@ -1,8 +1,10 @@
 import { ArrowRight } from 'lucide-react';
-import { TRANSLATIONS, ISSUE_CATEGORIES } from '../components/kiosk-types';
+import { ISSUE_CATEGORIES } from '../components/kiosk-types';
+import { useT, useIssueResolver } from '../context/TranslationContext';
 
 export function IssueClassification({ language, data, onChange, onNext }) {
-  const t = TRANSLATIONS[language] ?? TRANSLATIONS.en;
+  const t = useT();
+  const resolveIssue = useIssueResolver();
 
   // pull the right list of specific issues for whatever device was picked on the
   // previous screen -- falls back to an empty list if something's gone wrong upstream
@@ -72,7 +74,7 @@ export function IssueClassification({ language, data, onChange, onNext }) {
                   boxShadow: selected ? 'inset 0 0 0 3px #1a1a1a' : 'none',
                 }}
               />
-              {issue[language] ?? issue.en}
+              {resolveIssue(issue)}
             </button>
           );
         })}

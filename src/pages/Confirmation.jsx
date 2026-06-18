@@ -1,8 +1,8 @@
 import { CheckCircle, RefreshCw, Home } from 'lucide-react';
-import { TRANSLATIONS } from '../components/kiosk-types';
+import { useT } from '../context/TranslationContext';
 
 export function Confirmation({ language, data, onReportAnother, onHome }) {
-  const t = TRANSLATIONS[language] ?? TRANSLATIONS['en'];
+  const t = useT();
 
   return (
     <div

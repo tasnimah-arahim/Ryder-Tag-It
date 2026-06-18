@@ -15,7 +15,7 @@ import {
   Cable,
   MoreHorizontal,
 } from 'lucide-react';
-import { TRANSLATIONS } from '../components/kiosk-types';
+import { useT } from '../context/TranslationContext';
 
 // value must match the keys in ISSUE_CATEGORIES (kiosk-types.js) so the next
 // screen can look up the right list of specific issues for whatever is picked here
@@ -41,7 +41,7 @@ const DEVICE_OPTIONS = [
 const MOST_COMMON_DEVICE = 'Printer';
 
 export function DeviceSelection({ language, data, onChange, onNext }) {
-  const t = TRANSLATIONS[language] ?? TRANSLATIONS.en;
+  const t = useT();
 
   // tapping a device saves it to the report and immediately advances to the next screen
   const handleSelect = (value) => {

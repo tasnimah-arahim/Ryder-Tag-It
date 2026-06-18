@@ -1,4 +1,4 @@
-import { TRANSLATIONS } from '../components/kiosk-types';
+import { useT } from '../context/TranslationContext';
 
 // hardcoded for now, will come from ServiceNow later
 const LANG_OPTIONS = [
@@ -9,7 +9,7 @@ const LANG_OPTIONS = [
 ];
 
 export function Home({ language, onStart, onLanguageChange, onSignOut }) {
-  const t = TRANSLATIONS[language] ?? TRANSLATIONS['en'];
+  const t = useT();
 
   return (
     <div

@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { KioskShell } from './components/KioskShell';
+import { TranslationContext } from './context/TranslationContext';
+import { useTranslations } from './hooks/useTranslations';
 import { Home } from './pages/Home';
 import { WhereIssue } from './pages/WhereIssue';
 import { ExactLocation } from './pages/ExactLocation';
@@ -38,6 +40,8 @@ function App() {
   const [screen,   setScreen]   = useState('welcome');
   const [language, setLanguage] = useState('en');
   const [report,   setReport]   = useState({ ...EMPTY_REPORT });
+
+  const { t, issueTranslations } = useTranslations(language);
 
   // ── Auth state ──────────────────────────────────────────────────────────────
   // authPhase: 'gate' | 'yubikey' | 'okta' | 'done'
@@ -186,8 +190,7 @@ function App() {
   }
 
   // ── Kiosk flow (auth === 'done') ─────────────────────────────────────────
-  return (
-    <KioskShell
+  return (    <TranslationContext.Provider value={{ t, issueTranslations, language }}>    <KioskShell
       currentScreen={screen}
       language={language}
       onBack={goBack}
@@ -198,6 +201,7 @@ function App() {
     >
       {renderKioskScreen()}
     </KioskShell>
+    </TranslationContext.Provider>
   );
 }
 

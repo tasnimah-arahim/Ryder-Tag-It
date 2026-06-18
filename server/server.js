@@ -67,6 +67,46 @@ function toJSONSafe(obj) {
   ));
 }
 
+// Translates an array of strings to targetLang via Azure Cognitive Services Translator.
+// Batches requests to stay within the 100-element-per-request API limit.
+async function azureTranslate(texts, targetLang) {
+  const key      = process.env.AZURE_TRANSLATOR_KEY;
+  const endpoint = process.env.AZURE_TRANSLATOR_ENDPOINT || 'https://api.cognitive.microsofttranslator.com';
+  const region   = process.env.AZURE_TRANSLATOR_REGION;
+
+  if (!key || !region) {
+    throw new Error('AZURE_TRANSLATOR_KEY and AZURE_TRANSLATOR_REGION must be set in your .env file.');
+  }
+
+  const BATCH_SIZE = 100;
+  const results = [];
+
+  for (let i = 0; i < texts.length; i += BATCH_SIZE) {
+    const batch = texts.slice(i, i + BATCH_SIZE);
+    const url = `${endpoint}/translate?api-version=3.0&to=${encodeURIComponent(targetLang)}`;
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Ocp-Apim-Subscription-Key': key,
+        'Ocp-Apim-Subscription-Region': region,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(batch.map(text => ({ Text: text }))),
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`Azure Translator returned ${response.status}: ${errText}`);
+    }
+
+    const data = await response.json();
+    results.push(...data.map(r => r.translations[0].text));
+  }
+
+  return results;
+}
+
 const server = http.createServer(async (req, res) => {
   const url      = new URL(req.url, 'http://localhost');
   const pathname = url.pathname;
@@ -239,6 +279,21 @@ const server = http.createServer(async (req, res) => {
         credentialCount: u.credentials.length,
       }));
       return send(res, 200, list);
+    }
+
+    // ── Translation ──────────────────────────────────────────────────────────
+
+    if (method === 'POST' && pathname === '/api/translate') {
+      let body;
+      try { body = await readBody(req); } catch (e) { return send(res, 400, { error: e.message }); }
+
+      const { texts, targetLang } = body;
+      if (!Array.isArray(texts) || texts.length === 0 || !targetLang) {
+        return send(res, 400, { error: '"texts" (non-empty array) and "targetLang" are required' });
+      }
+
+      const translated = await azureTranslate(texts, targetLang);
+      return send(res, 200, { translated });
     }
 
     res.writeHead(404); res.end('Not Found');

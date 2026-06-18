@@ -1,5 +1,6 @@
 import {ArrowLeft, Home} from 'lucide-react';
 import {FLOW_STEPS} from './kiosk-types';
+import { useT } from '../context/TranslationContext';
 
 const LANG_LABELS = {
     en: 'EN',
@@ -21,6 +22,7 @@ export function KioskShell({
   const isWelcome = currentScreen === 'welcome';
   const isConfirmation = currentScreen === 'confirmation';
   const showHeader = !isWelcome;
+  const t = useT();
 
   const flowSteps = FLOW_STEPS;
   const stepIndex = flowSteps.indexOf(currentScreen);
@@ -131,7 +133,7 @@ export function KioskShell({
             style={{ background: '#f0f0f0', color: '#1a1a1a' }}
           >
             <ArrowLeft size={18} />
-            <span style={{ fontWeight: 700, fontSize: '15px' }}>Back</span>
+            <span style={{ fontWeight: 700, fontSize: '15px' }}>{t.back}</span>
           </button>
 
           <button
@@ -140,7 +142,7 @@ export function KioskShell({
             style={{ background: '#f0f0f0', color: '#1a1a1a' }}
           >
             <Home size={18} />
-            <span style={{ fontWeight: 700, fontSize: '15px' }}>Home</span>
+            <span style={{ fontWeight: 700, fontSize: '15px' }}>{t.home}</span>
           </button>
         </footer>
       )}

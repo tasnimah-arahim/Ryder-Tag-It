@@ -1,5 +1,5 @@
 import { Edit3, Send, MapPin, Monitor, Tag, MessageSquare, User } from 'lucide-react';
-import { TRANSLATIONS } from '../components/kiosk-types';
+import { useT } from '../context/TranslationContext';
 
 function SummaryRow({ icon: Icon, label, value, onEdit }) {
   if (!value) return null;
@@ -48,7 +48,7 @@ function SummaryRow({ icon: Icon, label, value, onEdit }) {
 }
 
 export function Submit({ language, data, onEdit, onSubmit }) {
-  const t = TRANSLATIONS[language] ?? TRANSLATIONS['en'];
+  const t = useT();
 
   const locationParts = [
     data.stationNumber && `Station ${data.stationNumber}`,

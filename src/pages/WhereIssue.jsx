@@ -10,7 +10,7 @@ import {
   Laptop,
   MoreHorizontal,
 } from 'lucide-react';
-import { TRANSLATIONS } from '../components/kiosk-types';
+import { useT } from '../context/TranslationContext';
 
 // icon + translation key for each area option, in the order they should appear
 const AREA_OPTIONS = [
@@ -27,7 +27,7 @@ const AREA_OPTIONS = [
 ];
 
 export function WhereIssue({ language, data, onChange, onNext }) {
-  const t = TRANSLATIONS[language] ?? TRANSLATIONS.en;
+  const t = useT();
 
   // tapping an option saves it to the report and immediately advances to the next screen
   const handleSelect = (value) => {

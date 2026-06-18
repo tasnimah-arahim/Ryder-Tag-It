@@ -1,5 +1,5 @@
 import { ArrowRight } from 'lucide-react';
-import { TRANSLATIONS } from '../components/kiosk-types';
+import { useT } from '../context/TranslationContext';
 
 // the 3 input fields on this screen, in the order they're shown
 const FIELDS = [
@@ -9,7 +9,7 @@ const FIELDS = [
 ];
 
 export function ExactLocation({ language, data, onChange, onNext }) {
-  const t = TRANSLATIONS[language] ?? TRANSLATIONS.en;
+  const t = useT();
 
   // Continue only unlocks once at least one of the three fields has something in it
   const canContinue =
