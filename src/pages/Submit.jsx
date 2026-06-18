@@ -54,11 +54,21 @@ export function Submit({ language, data, onEdit, onSubmit }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError]           = useState(null);
 
+<<<<<<< Updated upstream
   const locationParts = [
     data.stationNumber    && `Station ${data.stationNumber}`,
     data.workstationNumber && `WS ${data.workstationNumber}`,
     data.dockDoorNumber   && `Door ${data.dockDoorNumber}`,
   ].filter(Boolean).join(' · ');
+=======
+  const locationParts = data.area === 'other'
+    ? data.otherLocation
+    : [
+        data.stationNumber && `Station ${data.stationNumber}`,
+        data.workstationNumber && `WS ${data.workstationNumber}`,
+        data.dockDoorNumber && `Door ${data.dockDoorNumber}`,
+      ].filter(Boolean).join(' · ');
+>>>>>>> Stashed changes
 
   async function handleSubmit() {
     setSubmitting(true);
@@ -120,14 +130,6 @@ export function Submit({ language, data, onEdit, onSubmit }) {
           value={data.issueCategory}
           onEdit={() => onEdit('classification')}
         />
-        {data.additionalComments && (
-          <SummaryRow
-            icon={MessageSquare}
-            label={t.comments}
-            value={data.additionalComments}
-            onEdit={() => onEdit('classification')}
-          />
-        )}
       </div>
 
       {error && (

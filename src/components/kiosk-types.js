@@ -5,6 +5,7 @@ export const TRANSLATIONS = {
   en: {
     appName: 'RyderTag',
     selectLanguage: 'Select your language',
+    selectWarehouse: 'Which warehouse are you located in?',
     startReport: 'Start Report',
     whereIssue: 'Where is the issue?',
     specifyLocation: 'Specify the exact location.',
@@ -17,7 +18,6 @@ export const TRANSLATIONS = {
     yourName: 'Your Name',
     namePlaceholder: 'e.g. Maria Rodriguez',
     issueClassification: 'What best describes the problem?',
-    additionalComments: 'Additional comments (optional)',
     reviewSubmit: 'Review & Submit',
     editReport: 'Edit Report',
     submitTicket: 'Submit Ticket',
@@ -41,6 +41,12 @@ export const TRANSLATIONS = {
     typeHere: 'Type here...',
     mostCommon: 'Most Common',
     fillAtLeastOne: 'Please fill in at least one field',
+    warehouses: {
+      w1: 'Warehouse 1',
+      w2: 'Warehouse 2',
+      w3: 'Warehouse 3',
+      w4: 'Warehouse 4',
+    },
     areas: {
       inbound: 'Inbound',
       outbound: 'Outbound',
@@ -74,6 +80,7 @@ export const TRANSLATIONS = {
   es: {
     appName: 'RyderTag',
     selectLanguage: 'Seleccione su idioma',
+    selectWarehouse: '¿En qué almacén se encuentra?',
     startReport: 'Iniciar Reporte',
     whereIssue: '¿Dónde está el problema?',
     specifyLocation: 'Especifique la ubicación exacta.',
@@ -86,7 +93,6 @@ export const TRANSLATIONS = {
     yourName: 'Su Nombre',
     namePlaceholder: 'ej. Maria Rodriguez',
     issueClassification: '¿Qué describe mejor el problema?',
-    additionalComments: 'Comentarios adicionales (opcional)',
     reviewSubmit: 'Revisar y Enviar',
     editReport: 'Editar Reporte',
     submitTicket: 'Enviar Ticket',
@@ -110,6 +116,12 @@ export const TRANSLATIONS = {
     typeHere: 'Escriba aquí...',
     mostCommon: 'Más Común',
     fillAtLeastOne: 'Por favor complete al menos un campo',
+    warehouses: {
+      w1: 'Almacén 1',
+      w2: 'Almacén 2',
+      w3: 'Almacén 3',
+      w4: 'Almacén 4',
+    },
     areas: {
       inbound: 'Entrada',
       outbound: 'Salida',
@@ -143,6 +155,7 @@ export const TRANSLATIONS = {
   ht: {
     appName: 'RyderTag',
     selectLanguage: 'Chwazi lang ou',
+    selectWarehouse: 'Nan ki depo w ye?',
     startReport: 'Kòmanse Rapò',
     whereIssue: 'Ki kote pwoblèm nan ye?',
     specifyLocation: 'Presize kote egzak la.',
@@ -155,7 +168,6 @@ export const TRANSLATIONS = {
     yourName: 'Non Ou',
     namePlaceholder: 'egz. Maria Rodriguez',
     issueClassification: 'Ki sa ki pi byen dekri pwoblèm nan?',
-    additionalComments: 'Kòmantè siplemantè (opsyonèl)',
     reviewSubmit: 'Revize ak Soumèt',
     editReport: 'Modifye Rapò',
     submitTicket: 'Soumèt Tikè',
@@ -179,6 +191,12 @@ export const TRANSLATIONS = {
     typeHere: 'Ekri isit...',
     mostCommon: 'Pi Souvan',
     fillAtLeastOne: 'Tanpri ranpli omwen yon chan',
+    warehouses: {
+      w1: 'Depo 1',
+      w2: 'Depo 2',
+      w3: 'Depo 3',
+      w4: 'Depo 4',
+    },
     areas: {
       inbound: 'Antre',
       outbound: 'Sòti',
@@ -212,6 +230,7 @@ export const TRANSLATIONS = {
   pt: {
     appName: 'RyderTag',
     selectLanguage: 'Selecione seu idioma',
+    selectWarehouse: 'Em qual armazém você está localizado?',
     startReport: 'Iniciar Relatório',
     whereIssue: 'Onde está o problema?',
     specifyLocation: 'Especifique o local exato.',
@@ -224,7 +243,6 @@ export const TRANSLATIONS = {
     yourName: 'Seu Nome',
     namePlaceholder: 'ex. Maria Rodriguez',
     issueClassification: 'O que melhor descreve o problema?',
-    additionalComments: 'Comentários adicionais (opcional)',
     reviewSubmit: 'Revisar e Enviar',
     editReport: 'Editar Relatório',
     submitTicket: 'Enviar Ticket',
@@ -248,6 +266,12 @@ export const TRANSLATIONS = {
     typeHere: 'Digite aqui...',
     mostCommon: 'Mais Comum',
     fillAtLeastOne: 'Por favor preencha pelo menos um campo',
+    warehouses: {
+      w1: 'Armazém 1',
+      w2: 'Armazém 2',
+      w3: 'Armazém 3',
+      w4: 'Armazém 4',
+    },
     areas: {
       inbound: 'Entrada',
       outbound: 'Saída',
@@ -369,6 +393,9 @@ export const ISSUE_CATEGORIES = {
     { en: 'HDMI Cable', es: 'Cable HDMI', ht: 'Kab HDMI', pt: 'Cabo HDMI' },
     { en: 'USB Cable', es: 'Cable USB', ht: 'Kab USB', pt: 'Cabo USB' },
     { en: 'Power Cable', es: 'Cable de Poder', ht: 'Kab Kouran', pt: 'Cabo de Energia' },
+    { en: 'Other', es: 'Otro', ht: 'Lòt', pt: 'Outro' },
+  ],
+  Other: [
     { en: 'Other', es: 'Otro', ht: 'Lòt', pt: 'Outro' },
   ],
   'Power Outlet': [

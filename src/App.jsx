@@ -5,6 +5,7 @@ import { WhereIssue } from './pages/WhereIssue';
 import { ExactLocation } from './pages/ExactLocation';
 import { DeviceSelection } from './pages/DeviceSelection';
 import { IssueClassification } from './pages/IssueClassification';
+import { WarehouseSelection } from './pages/WarehouseSelection';
 import { Submit } from './pages/Submit';
 import { Confirmation } from './pages/Confirmation';
 import { AuthGate } from './pages/AuthGate';
@@ -15,19 +16,26 @@ import { setSessionToken, getWarehouseByCode } from './services/api';
 
 const EMPTY_REPORT = {
   language: 'en',
+  warehouse: '',
   area: '',
   stationNumber: '',
   workstationNumber: '',
   dockDoorNumber: '',
+  otherLocation: '',
   device: '',
   reporterName: '',
   issueCategory: '',
+<<<<<<< Updated upstream
   additionalComments: '',
   warehouse: '',
+=======
+  otherIssueDetails: '',
+>>>>>>> Stashed changes
 };
 
 const SCREEN_ORDER = [
   'welcome',
+  'warehouse',
   'area',
   'location',
   'device',
@@ -141,9 +149,18 @@ function App() {
         return (
           <Home
             language={language}
-            onStart={() => setScreen('area')}
+            onStart={() => setScreen('warehouse')}
             onLanguageChange={setLanguage}
             onSignOut={handleSignOut}
+          />
+        );
+      case 'warehouse':
+        return (
+          <WarehouseSelection
+            language={language}
+            data={report}
+            onChange={updateReport}
+            onNext={goNext}
           />
         );
       case 'area':

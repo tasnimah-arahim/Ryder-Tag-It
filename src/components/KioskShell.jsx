@@ -22,10 +22,12 @@ export function KioskShell({
 }) {
   const isWelcome = currentScreen === 'welcome';
   const isConfirmation = currentScreen === 'confirmation';
+  const isWarehouse = currentScreen === 'warehouse';
   const showHeader = !isWelcome;
 
   const flowSteps = FLOW_STEPS;
   const stepIndex = flowSteps.indexOf(currentScreen);
+  const showStepIndicators = !isWarehouse && !isConfirmation;
 
   return (
     <div
@@ -49,7 +51,7 @@ export function KioskShell({
           </div>
 
           {/* Step indicators */}
-          {!isConfirmation && (
+          {showStepIndicators && (
             <div className="flex items-center gap-2">
               {flowSteps.map((step, i) => {
                 const stepNum = i + 1;

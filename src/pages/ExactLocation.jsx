@@ -10,12 +10,13 @@ const FIELDS = [
 
 export function ExactLocation({ language, data, onChange, onNext }) {
   const t = TRANSLATIONS[language] ?? TRANSLATIONS.en;
+  const isOtherArea = data.area === 'other';
 
-  // Continue only unlocks once at least one of the three fields has something in it
-  const canContinue =
-    data.stationNumber.trim() !== '' ||
-    data.workstationNumber.trim() !== '' ||
-    data.dockDoorNumber.trim() !== '';
+  const canContinue = isOtherArea
+    ? data.otherLocation?.trim() !== ''
+    : data.stationNumber.trim() !== '' ||
+      data.workstationNumber.trim() !== '' ||
+      data.dockDoorNumber.trim() !== '';
 
   return (
     <div
@@ -48,8 +49,8 @@ export function ExactLocation({ language, data, onChange, onNext }) {
       )}
 
       <div className="flex flex-col gap-6 mb-10">
-        {FIELDS.map(({ key, placeholder }) => (
-          <div key={key} className="text-left">
+        {isOtherArea ? (
+          <div className="text-left">
             <label
               style={{
                 display: 'block',
@@ -61,15 +62,15 @@ export function ExactLocation({ language, data, onChange, onNext }) {
                 marginBottom: '8px',
               }}
             >
-              {t[key]}
+              Describe the location
             </label>
-            <input
-              type="text"
-              value={data[key]}
-              onChange={(e) => onChange({ [key]: e.target.value })}
-              placeholder={placeholder}
+            <textarea
+              value={data.otherLocation}
+              onChange={(e) => onChange({ otherLocation: e.target.value })}
+              placeholder={t.typeHere ?? 'Type the exact location here...'}
               className="w-full rounded-2xl"
               style={{
+                minHeight: '180px',
                 background: 'rgba(255,255,255,0.12)',
                 border: '2px solid rgba(255,255,255,0.3)',
                 color: 'white',
@@ -78,10 +79,47 @@ export function ExactLocation({ language, data, onChange, onNext }) {
                 fontWeight: 600,
                 outline: 'none',
                 boxSizing: 'border-box',
+                resize: 'vertical',
+                lineHeight: 1.6,
               }}
             />
           </div>
-        ))}
+        ) : (
+          FIELDS.map(({ key, placeholder }) => (
+            <div key={key} className="text-left">
+              <label
+                style={{
+                  display: 'block',
+                  color: 'rgba(255,255,255,0.85)',
+                  fontWeight: 700,
+                  fontSize: '13px',
+                  letterSpacing: '0.05em',
+                  textTransform: 'uppercase',
+                  marginBottom: '8px',
+                }}
+              >
+                {t[key]}
+              </label>
+              <input
+                type="text"
+                value={data[key]}
+                onChange={(e) => onChange({ [key]: e.target.value })}
+                placeholder={placeholder}
+                className="w-full rounded-2xl"
+                style={{
+                  background: 'rgba(255,255,255,0.12)',
+                  border: '2px solid rgba(255,255,255,0.3)',
+                  color: 'white',
+                  padding: '18px 20px',
+                  fontSize: '18px',
+                  fontWeight: 600,
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+          ))
+        )}
       </div>
 
       <button

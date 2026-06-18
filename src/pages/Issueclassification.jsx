@@ -35,7 +35,26 @@ export function IssueClassification({ language, data, onChange, onNext, warehous
     return () => { cancelled = true; };
   }, [data.device, warehouse]);
 
-  const canContinue = data.issueCategory.trim() !== '';
+  const isSingleOtherIssue =
+    issueOptions.length === 1 &&
+    issueOptions[0]?.en === 'Other';
+  const isOtherDevice = data.device === 'Other';
+  const isOtherIssue = data.issueCategory === 'Other';
+
+  useEffect(() => {
+    if ((isSingleOtherIssue || isOtherDevice) && data.issueCategory !== 'Other') {
+      onChange({ issueCategory: 'Other' });
+    }
+  }, [isSingleOtherIssue, isOtherDevice, data.issueCategory, onChange]);
+
+  const canContinue = data.issueCategory.trim() !== '' || isOtherDevice;
+
+  const handleNext = () => {
+    if (isOtherDevice && data.issueCategory.trim() === '') {
+      onChange({ issueCategory: 'Other' });
+    }
+    onNext();
+  };
 
   return (
     <div
@@ -103,42 +122,9 @@ export function IssueClassification({ language, data, onChange, onNext, warehous
         })}
       </div>
 
-      <label
-        style={{
-          display: 'block',
-          color: 'white',
-          fontWeight: 700,
-          fontSize: '13px',
-          letterSpacing: '0.05em',
-          textTransform: 'uppercase',
-          marginBottom: '8px',
-          textAlign: 'left',
-        }}
-      >
-        {t.additionalComments}
-      </label>
-      <textarea
-        value={data.additionalComments}
-        onChange={(e) => onChange({ additionalComments: e.target.value })}
-        placeholder={t.typeHere}
-        rows={4}
-        className="w-full rounded-2xl mb-8"
-        style={{
-          background: 'rgba(255,255,255,0.12)',
-          border: '2px solid rgba(255,255,255,0.3)',
-          color: 'white',
-          padding: '18px 20px',
-          fontSize: '16px',
-          fontWeight: 500,
-          outline: 'none',
-          boxSizing: 'border-box',
-          resize: 'vertical',
-          fontFamily: 'inherit',
-        }}
-      />
 
       <button
-        onClick={onNext}
+        onClick={handleNext}
         disabled={!canContinue}
         className="flex items-center justify-center gap-2 rounded-2xl w-full transition-all active:scale-95"
         style={{

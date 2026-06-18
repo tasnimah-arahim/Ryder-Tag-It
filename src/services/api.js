@@ -54,3 +54,9 @@ export async function submitReport(reportData) {
   }
   return res.json();
 }
+
+// fetch list of warehouses (optional lang param for translated names)
+export async function getWarehouses(lang = 'en') {
+  const res = await fetch(`${BASE_URL}/warehouses?lang=${lang}`);
+  return res.json();
+}
