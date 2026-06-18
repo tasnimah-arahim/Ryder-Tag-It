@@ -1,15 +1,37 @@
 import { ArrowRight } from 'lucide-react';
 import { TRANSLATIONS, ISSUE_CATEGORIES } from '../components/kiosk-types';
+import { useState, useEffect } from 'react';
+import { getIssueCategories } from '../services/api';
 
 export function IssueClassification({ language, data, onChange, onNext }) {
   const t = TRANSLATIONS[language] ?? TRANSLATIONS.en;
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [issueOptions, setIssueOptions] = useState([]);
 
-  // pull the right list of specific issues for whatever device was picked on the
-  // previous screen -- falls back to an empty list if something's gone wrong upstream
-  const issueOptions = ISSUE_CATEGORIES[data.device] ?? [];
+  // TODO: uncomment this when backend /api/issues is connected to the database
+  // useEffect(() => {
+  //   getIssueCategories(data.device, language)
+  //     .then(data => {
+  //       setIssueOptions(data);
+  //       setLoading(false);
+  //     })
+  //     .catch(err => {
+  //       setError(err.message);
+  //       setLoading(false);
+  //     });
+  // }, [data.device, language]);
+
+  // TEMPORARY: using hardcoded list until backend is ready
+  useEffect(() => {
+    setIssueOptions(ISSUE_CATEGORIES[data.device] ?? []);
+    setLoading(false);
+  }, [data.device]);
 
   const canContinue = data.issueCategory.trim() !== '';
 
+  if (loading) return <div style={{ color: 'white', padding: '40px' }}>Loading...</div>;
+  if (error) return <div style={{ color: 'white', padding: '40px' }}>Error: {error}</div>;
   return (
     <div
       className="px-6 py-8"
