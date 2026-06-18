@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { Edit3, Send, MapPin, Monitor, Tag, MessageSquare, User } from 'lucide-react';
 import { TRANSLATIONS } from '../components/kiosk-types';
+import { submitReport } from '../services/api';
 
 function SummaryRow({ icon: Icon, label, value, onEdit }) {
   if (!value) return null;
@@ -49,12 +51,26 @@ function SummaryRow({ icon: Icon, label, value, onEdit }) {
 
 export function Submit({ language, data, onEdit, onSubmit }) {
   const t = TRANSLATIONS[language] ?? TRANSLATIONS['en'];
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError]           = useState(null);
 
   const locationParts = [
-    data.stationNumber && `Station ${data.stationNumber}`,
+    data.stationNumber    && `Station ${data.stationNumber}`,
     data.workstationNumber && `WS ${data.workstationNumber}`,
-    data.dockDoorNumber && `Door ${data.dockDoorNumber}`,
+    data.dockDoorNumber   && `Door ${data.dockDoorNumber}`,
   ].filter(Boolean).join(' · ');
+
+  async function handleSubmit() {
+    setSubmitting(true);
+    setError(null);
+    try {
+      await submitReport(data);
+      onSubmit();
+    } catch (err) {
+      setError(err.message);
+      setSubmitting(false);
+    }
+  }
 
   return (
     <div
@@ -114,9 +130,19 @@ export function Submit({ language, data, onEdit, onSubmit }) {
         )}
       </div>
 
+      {error && (
+        <div
+          className="rounded-2xl px-5 py-4 mt-4"
+          style={{ background: '#fef2f2', border: '1.5px solid #fecaca', color: '#991b1b', fontSize: '14px', fontWeight: 600 }}
+        >
+          {error}
+        </div>
+      )}
+
       <div className="flex gap-4 mt-6">
         <button
           onClick={() => onEdit('area')}
+          disabled={submitting}
           className="flex-1 flex items-center justify-center gap-2 rounded-2xl transition-all active:scale-95"
           style={{
             background: 'rgba(255,255,255,0.18)',
@@ -125,25 +151,28 @@ export function Submit({ language, data, onEdit, onSubmit }) {
             fontSize: 'clamp(14px, 2vw, 16px)',
             padding: 'clamp(14px, 2.5vh, 18px) 0',
             border: '2px solid rgba(255,255,255,0.35)',
+            opacity: submitting ? 0.5 : 1,
           }}
         >
           <Edit3 size={18} />
           {t.editReport}
         </button>
         <button
-          onClick={onSubmit}
+          onClick={handleSubmit}
+          disabled={submitting}
           className="flex-1 flex items-center justify-center gap-2 rounded-2xl transition-all active:scale-95"
           style={{
-            background: 'white',
+            background: submitting ? 'rgba(255,255,255,0.7)' : 'white',
             color: '#cc0000',
             fontWeight: 800,
             fontSize: 'clamp(14px, 2vw, 16px)',
             padding: 'clamp(14px, 2.5vh, 18px) 0',
             boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+            cursor: submitting ? 'wait' : 'pointer',
           }}
         >
           <Send size={18} />
-          {t.submitTicket}
+          {submitting ? 'Submitting…' : t.submitTicket}
         </button>
       </div>
     </div>

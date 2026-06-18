@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { KioskShell } from './components/KioskShell';
 import { Home } from './pages/Home';
 import { WhereIssue } from './pages/WhereIssue';
@@ -7,10 +7,11 @@ import { DeviceSelection } from './pages/DeviceSelection';
 import { IssueClassification } from './pages/IssueClassification';
 import { Submit } from './pages/Submit';
 import { Confirmation } from './pages/Confirmation';
-
 import { AuthGate } from './pages/AuthGate';
 import { YubiKeySignIn } from './pages/YubiKeySignIn';
 import { OktaSignIn } from './pages/OktaSignIn';
+import { WarehouseSetup } from './pages/WarehouseSetup';
+import { setSessionToken, getWarehouseByCode } from './services/api';
 
 const EMPTY_REPORT = {
   language: 'en',
@@ -22,6 +23,7 @@ const EMPTY_REPORT = {
   reporterName: '',
   issueCategory: '',
   additionalComments: '',
+  warehouse: '',
 };
 
 const SCREEN_ORDER = [
@@ -40,9 +42,6 @@ function App() {
   const [report,   setReport]   = useState({ ...EMPTY_REPORT });
 
   // ── Auth state ──────────────────────────────────────────────────────────────
-  // authPhase: 'gate' | 'yubikey' | 'okta' | 'done'
-  // Lazily detect an Auth0 redirect callback (code+state in URL) on first render
-  // so OktaSignIn can call handleRedirectCallback() before the params disappear.
   const [authPhase, setAuthPhase] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     return (params.has('code') && params.has('state')) || params.has('error')
@@ -51,18 +50,69 @@ function App() {
   });
   const [authUser, setAuthUser] = useState(null);
 
+  // ── Warehouse state ─────────────────────────────────────────────────────────
+  // warehousePhase: 'idle' | 'loading' | 'setup' | 'ready'
+  const [warehousePhase, setWarehousePhase] = useState('idle');
+  const [warehouse, setWarehouse]           = useState('');
+
+  // After auth completes, resolve the saved warehouse code.
+  useEffect(() => {
+    if (authPhase !== 'done') return;
+    let cancelled = false;
+
+    (async () => {
+      const stored = localStorage.getItem('ryder.kiosk.warehouse');
+      if (!stored) {
+        if (!cancelled) setWarehousePhase('setup');
+        return;
+      }
+      if (!cancelled) setWarehousePhase('loading');
+      try {
+        const wh = await getWarehouseByCode(stored);
+        if (!cancelled) {
+          if (wh) { setWarehouse(stored); setWarehousePhase('ready'); }
+          else { localStorage.removeItem('ryder.kiosk.warehouse'); setWarehousePhase('setup'); }
+        }
+      } catch {
+        // Network/SN unavailable — trust the stored code so the kiosk still works.
+        if (!cancelled) { setWarehouse(stored); setWarehousePhase('ready'); }
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [authPhase]);
+
+  useEffect(() => {
+    if(warehouse) setReport({ ...EMPTY_REPORT, warehouse });
+  }, [warehouse]);
+
   function handleAuthSuccess(authInfo) {
+    setSessionToken(authInfo.token);
     setAuthUser(authInfo);
     setAuthPhase('done');
   }
 
-  // Resets auth + report and returns to the auth gate.
   function handleSignOut() {
-    if (authUser?.onSignOut) {
-      authUser.onSignOut(); // Auth0: redirects browser to logout endpoint
-    }
+    if (authUser?.onSignOut) authUser.onSignOut();
+    setSessionToken(null);
     setAuthUser(null);
     setAuthPhase('gate');
+    setWarehousePhase('idle');
+    // Keep warehouse code in localStorage — it's a kiosk setting, not a user setting.
+    // Warehouse will be re-validated on next login.
+    setReport({ ...EMPTY_REPORT });
+    setScreen('welcome');
+  }
+
+  function handleWarehouseSelected(code) {
+    setWarehouse(code);
+    setWarehousePhase('ready');
+  }
+
+  function handleChangeWarehouse() {
+    localStorage.removeItem('ryder.kiosk.warehouse');
+    setWarehouse('');
+    setWarehousePhase('setup');
     setReport({ ...EMPTY_REPORT });
     setScreen('welcome');
   }
@@ -80,10 +130,9 @@ function App() {
     if (idx > 0) setScreen(SCREEN_ORDER[idx - 1]);
   };
 
-  // Resets the current report/screen but keeps the user authenticated.
   const handleHome = () => {
     setScreen('welcome');
-    setReport({ ...EMPTY_REPORT });
+    setReport({ ...EMPTY_REPORT, warehouse });
   };
 
   const renderKioskScreen = () => {
@@ -122,6 +171,7 @@ function App() {
             data={report}
             onChange={updateReport}
             onNext={goNext}
+            warehouse={warehouse}
           />
         );
       case 'classification':
@@ -131,6 +181,7 @@ function App() {
             data={report}
             onChange={updateReport}
             onNext={goNext}
+            warehouse={warehouse}
           />
         );
       case 'review':
@@ -147,17 +198,16 @@ function App() {
           <Confirmation
             language={language}
             data={report}
-            onReportAnother={() => { setReport({ ...EMPTY_REPORT }); setScreen('area'); }}
+            onReportAnother={() => { setReport({ ...EMPTY_REPORT, warehouse }); setScreen('area'); }}
             onHome={handleHome}
           />
         );
-
       default:
         return null;
     }
   };
 
-  // ── Auth gate (renders before the kiosk shell) ───────────────────────────
+  // ── Auth gate ────────────────────────────────────────────────────────────────
   if (authPhase === 'gate') {
     return (
       <AuthGate
@@ -185,7 +235,20 @@ function App() {
     );
   }
 
-  // ── Kiosk flow (auth === 'done') ─────────────────────────────────────────
+  // ── Warehouse resolution (auth === 'done') ───────────────────────────────────
+  if (warehousePhase === 'loading') {
+    return (
+      <div style={{ minHeight: '100dvh', background: '#cc0000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ color: 'white', fontSize: '18px', fontWeight: 600 }}>Loading…</div>
+      </div>
+    );
+  }
+
+  if (warehousePhase === 'setup') {
+    return <WarehouseSetup onComplete={handleWarehouseSelected} />;
+  }
+
+  // ── Kiosk flow (auth === 'done' && warehousePhase === 'ready') ───────────────
   return (
     <KioskShell
       currentScreen={screen}
@@ -194,7 +257,9 @@ function App() {
       onHome={handleHome}
       onLanguageChange={setLanguage}
       onSignOut={handleSignOut}
+      onChangeWarehouse={handleChangeWarehouse}
       authUser={authUser}
+      warehouse={warehouse}
     >
       {renderKioskScreen()}
     </KioskShell>

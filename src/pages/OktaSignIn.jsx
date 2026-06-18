@@ -45,10 +45,25 @@ export function OktaSignIn({ onSuccess, onBack }) {
 
         if (await client.isAuthenticated()) {
           const user = await client.getUser();
+          // Exchange Auth0 identity for a server-side session token so the
+          // ServiceNow proxy routes can verify the request is authenticated.
+          let token = null;
+          try {
+            const sessionRes = await fetch('/api/auth/session', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ sub: user?.sub, name: user?.name }),
+            });
+            const sessionData = await sessionRes.json();
+            token = sessionData.token ?? null;
+          } catch {
+            // Non-fatal: kiosk auth still succeeded; SN proxy calls will get 401.
+          }
           if (!cancelled) {
             onSuccessRef.current({
               method: 'okta',
               user,
+              token,
               onSignOut: () => client.logout({ logoutParams: { returnTo: window.location.origin } }),
             });
           }

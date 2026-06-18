@@ -22,60 +22,52 @@ import { getDevices } from '../services/api';
 // value must match the keys in ISSUE_CATEGORIES (kiosk-types.js) so the next
 // screen can look up the right list of specific issues for whatever is picked here
 const DEVICE_OPTIONS = [
-  { value: 'Printer', icon: Printer },
-  { value: 'Monitor', icon: Monitor },
-  { value: 'Scanner', icon: Scan },
-  { value: 'Scale', icon: Scale },
-  { value: 'Laptop', icon: Laptop },
-  { value: 'Desktop', icon: Server },
-  { value: 'Keyboard', icon: Keyboard },
-  { value: 'Mouse', icon: Mouse },
-  { value: 'Power Outlet', icon: Zap },
-  { value: 'Network Connection', icon: Wifi },
-  { value: 'YubiKey', icon: KeyRound },
-  { value: 'Label Printer', icon: Tag },
-  { value: 'Handheld Device', icon: Smartphone },
-  { value: 'Cables', icon: Cable },
-  { value: 'Other', icon: MoreHorizontal },
+  { value: 'Printer',            icon: Printer        },
+  { value: 'Monitor',            icon: Monitor        },
+  { value: 'Scanner',            icon: Scan           },
+  { value: 'Scale',              icon: Scale          },
+  { value: 'Laptop',             icon: Laptop         },
+  { value: 'Desktop',            icon: Server         },
+  { value: 'Keyboard',           icon: Keyboard       },
+  { value: 'Mouse',              icon: Mouse          },
+  { value: 'Power Outlet',       icon: Zap            },
+  { value: 'Network Connection', icon: Wifi           },
+  { value: 'YubiKey',            icon: KeyRound       },
+  { value: 'Label Printer',      icon: Tag            },
+  { value: 'Handheld Device',    icon: Smartphone     },
+  { value: 'Cables',             icon: Cable          },
+  { value: 'Other',              icon: MoreHorizontal },
 ];
 
-// hardcoded for now -- later this should come from real usage stats / ServiceNow
 const MOST_COMMON_DEVICE = 'Printer';
 
-export function DeviceSelection({ language, data, onChange, onNext }) {
+function iconForDevice(value) {
+  return DEVICE_OPTIONS.find(o => o.value === value)?.icon ?? MoreHorizontal;
+}
+
+export function DeviceSelection({ language, data, onChange, onNext, warehouse }) {
   const t = TRANSLATIONS[language] ?? TRANSLATIONS.en;
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [devices, setDevices] = useState([]);
+  const [devices, setDevices] = useState(DEVICE_OPTIONS);
 
-  // TODO: uncomment this when backend /api/devices is connected to the database
-  // useEffect(() => {
-  //   getDevices(language)
-  //     .then(data => {
-  //       setDevices(data);
-  //       setLoading(false);
-  //     })
-  //     .catch(err => {
-  //       setError(err.message);
-  //       setLoading(false);
-  //     });
-  // }, [language]);
-
-  // TEMPORARY: using hardcoded list until backend is ready
   useEffect(() => {
-    setDevices(DEVICE_OPTIONS);
-    setLoading(false);
-  }, []);
+    if (!warehouse) return;
+    let cancelled = false;
+    getDevices(warehouse)
+      .then(apiDevices => {
+        if (!cancelled && apiDevices?.length) {
+          setDevices(apiDevices.map(d => ({ value: d.value, icon: iconForDevice(d.value) })));
+        }
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [warehouse]);
 
-  // tapping a device saves it to the report and immediately advances to the next screen
   const handleSelect = (value) => {
     onChange({ device: value });
     onNext();
   };
 
-  if (loading) return <div style={{ color: 'white', padding: '40px' }}>Loading...</div>;
-  if (error) return <div style={{ color: 'white', padding: '40px' }}>Error: {error}</div>;
   return (
     <div
       className="px-6 py-8"
@@ -150,7 +142,7 @@ export function DeviceSelection({ language, data, onChange, onNext }) {
                 </span>
               )}
               <Icon size={28} strokeWidth={2} />
-              <span>{t.devices[value]}</span>
+              <span>{t.devices[value] ?? value}</span>
             </button>
           );
         })}

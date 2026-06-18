@@ -3,35 +3,40 @@ import { TRANSLATIONS, ISSUE_CATEGORIES } from '../components/kiosk-types';
 import { useState, useEffect } from 'react';
 import { getIssueCategories } from '../services/api';
 
-export function IssueClassification({ language, data, onChange, onNext }) {
+export function IssueClassification({ language, data, onChange, onNext, warehouse }) {
   const t = TRANSLATIONS[language] ?? TRANSLATIONS.en;
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [issueOptions, setIssueOptions] = useState([]);
+  // Stores the last successful API fetch tagged by device+warehouse so we can
+  // tell when it's stale and fall back to the local list in the meantime.
+  const [fetched, setFetched] = useState({ device: null, warehouse: null, options: null });
 
-  // TODO: uncomment this when backend /api/issues is connected to the database
-  // useEffect(() => {
-  //   getIssueCategories(data.device, language)
-  //     .then(data => {
-  //       setIssueOptions(data);
-  //       setLoading(false);
-  //     })
-  //     .catch(err => {
-  //       setError(err.message);
-  //       setLoading(false);
-  //     });
-  // }, [data.device, language]);
+  const issueOptions =
+    (fetched.device === data.device && fetched.warehouse === warehouse && fetched.options)
+      ? fetched.options
+      : (ISSUE_CATEGORIES[data.device] ?? []);
 
-  // TEMPORARY: using hardcoded list until backend is ready
   useEffect(() => {
-    setIssueOptions(ISSUE_CATEGORIES[data.device] ?? []);
-    setLoading(false);
-  }, [data.device]);
+    if (!warehouse || !data.device) return;
+    let cancelled = false;
+    getIssueCategories(data.device, warehouse)
+      .then(apiIssues => {
+        if (!cancelled && apiIssues?.length) {
+          const localList = ISSUE_CATEGORIES[data.device] ?? [];
+          setFetched({
+            device: data.device,
+            warehouse,
+            options: apiIssues.map(api => {
+              const match = localList.find(l => l.en === api.en);
+              return match ?? { en: api.en, es: api.en, ht: api.en, pt: api.en };
+            }),
+          });
+        }
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [data.device, warehouse]);
 
   const canContinue = data.issueCategory.trim() !== '';
 
-  if (loading) return <div style={{ color: 'white', padding: '40px' }}>Loading...</div>;
-  if (error) return <div style={{ color: 'white', padding: '40px' }}>Error: {error}</div>;
   return (
     <div
       className="px-6 py-8"
@@ -64,8 +69,6 @@ export function IssueClassification({ language, data, onChange, onNext }) {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
         {issueOptions.map((issue) => {
-          // the english string is used as the stored value -- stable id regardless of
-          // which language the kiosk is currently displaying
           const value = issue.en;
           const selected = data.issueCategory === value;
           return (

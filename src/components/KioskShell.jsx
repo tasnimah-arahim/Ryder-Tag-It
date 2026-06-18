@@ -16,7 +16,9 @@ export function KioskShell({
   onHome,
   onLanguageChange,
   onSignOut,
+  onChangeWarehouse,
   authUser,
+  warehouse,
 }) {
   const isWelcome = currentScreen === 'welcome';
   const isConfirmation = currentScreen === 'confirmation';
@@ -75,8 +77,25 @@ export function KioskShell({
             </div>
           )}
 
-          {/* Language switcher */}
+          {/* Right controls: warehouse indicator + language switcher + sign out */}
           <div className="flex items-center gap-0.5">
+            {warehouse && (
+              <div
+                className="flex items-center gap-1 rounded px-2 py-1 mr-1"
+                style={{ background: '#f5f5f5', border: '1px solid #e8e8e8' }}
+              >
+                <span style={{ fontWeight: 700, fontSize: '11px', color: '#1a1a1a' }}>{warehouse}</span>
+                {onChangeWarehouse && (
+                  <button
+                    onClick={onChangeWarehouse}
+                    style={{ background: 'none', border: 'none', padding: '0 0 0 4px', fontSize: '10px', color: '#9a9a9a', fontWeight: 600, cursor: 'pointer' }}
+                    title="Change kiosk location"
+                  >
+                    Change
+                  </button>
+                )}
+              </div>
+            )}
             {['en', 'es', 'ht', 'pt'].map((lang) => (
               <button
                 key={lang}

@@ -1,37 +1,56 @@
+const BASE_URL = '/api';
 
-const BASE_URL = 'http://localhost:3000/api';
+let _sessionToken = null;
 
-
-// this is called by home.jsx to get the list of languages that will be on the welcome screen
-export async function getLanguages() {
-  const res = await fetch(`${BASE_URL}/languages`);
-  return res.json();
+export function setSessionToken(token) {
+  _sessionToken = token;
 }
 
-// this is called by whereIssue.jsx, it passes the selected language so the backend knows whether or not to translate
-export async function getAreas(lang) {
-  const res = await fetch(`${BASE_URL}/areas?lang=${lang}`);
-  return res.json();
-}
-
-// this is called by deviceselection.jsx, does the same as get areas
-export async function getDevices(lang) {
-  const res = await fetch(`${BASE_URL}/devices?lang=${lang}`);
-  return res.json();
-}
-
-// this is called by issueClassification, it checks what dev was selected so it can return the right issues
-export async function getIssueCategories(device, lang) {
-  const res = await fetch(`${BASE_URL}/issues?device=${device}&lang=${lang}`);
-  return res.json();
-}
-
-// called by submit.jsx, it sends the report obj to the backend to be sent to ServiceNow
-export async function submitReport(reportData) {
-  const res = await fetch(`${BASE_URL}/submit`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(reportData)
+function authedFetch(url, options = {}) {
+  return fetch(url, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(_sessionToken ? { Authorization: `Bearer ${_sessionToken}` } : {}),
+      ...(options.headers ?? {}),
+    },
   });
+}
+
+export async function getWarehouses() {
+  const res = await authedFetch(`${BASE_URL}/warehouses`);
+  if (!res.ok) throw new Error(`Failed to fetch warehouses (${res.status})`);
+  return res.json();
+}
+
+export async function getWarehouseByCode(code) {
+  const res = await authedFetch(`${BASE_URL}/warehouses?code=${encodeURIComponent(code)}`);
+  if (!res.ok) throw new Error(`Failed to validate warehouse (${res.status})`);
+  const list = await res.json();
+  return list.length > 0 ? list[0] : null;
+}
+
+export async function getDevices(warehouse) {
+  const res = await authedFetch(`${BASE_URL}/devices?warehouse=${encodeURIComponent(warehouse)}`);
+  if (!res.ok) throw new Error(`Failed to fetch devices (${res.status})`);
+  return res.json();
+}
+
+export async function getIssueCategories(device, warehouse) {
+  const params = new URLSearchParams({ warehouse, device });
+  const res = await authedFetch(`${BASE_URL}/issues?${params}`);
+  if (!res.ok) throw new Error(`Failed to fetch issues (${res.status})`);
+  return res.json();
+}
+
+export async function submitReport(reportData) {
+  const res = await authedFetch(`${BASE_URL}/submit`, {
+    method: 'POST',
+    body: JSON.stringify(reportData),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `Submission failed (${res.status})`);
+  }
   return res.json();
 }
