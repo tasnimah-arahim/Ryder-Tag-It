@@ -1,4 +1,6 @@
 import { TRANSLATIONS } from '../components/kiosk-types';
+import { useState, useEffect } from 'react';
+import { getLanguages } from '../services/api';
 
 // hardcoded for now, will come from ServiceNow later
 const LANG_OPTIONS = [
@@ -10,7 +12,34 @@ const LANG_OPTIONS = [
 
 export function Home({ language, onStart, onLanguageChange, onSignOut }) {
   const t = TRANSLATIONS[language] ?? TRANSLATIONS['en'];
+// start as true because we want to show the loading state while we fetch the list of languages from the backend
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [languages, setLanguages] = useState([]);
 
+  // TODO: UNCOMMENT ONCE BACKEND IS READY
+  // useEffect(() => {
+  // // calls api.js to fetch the list of languages from the backend
+  // getLanguages()
+  //   .then(data => {
+  //     // saves in languages if it is done correctly
+  //     setLanguages(data);
+  //     setLoading(false);
+  //   })
+  //   .catch(err => {
+  //     setError(err.message);
+  //     setLoading(false);
+  //   });
+  // }, []);
+
+  // TEMPORARY: using hardcoded list until backend is ready
+  useEffect(() => {
+    setLanguages(LANG_OPTIONS);
+    setLoading(false);
+  }, []);
+  
+  if (loading) return <div style={{ color: 'white', padding: '40px' }}>Loading...</div>;
+  if (error) return <div style={{ color: 'white', padding: '40px' }}>Error: {error}</div>;
   return (
     <div
       className="flex flex-col items-center justify-center px-6"
@@ -52,7 +81,7 @@ export function Home({ language, onStart, onLanguageChange, onSignOut }) {
         className="flex flex-col gap-3 w-full"
         style={{ maxWidth: 'min(420px, 90vw)' }}
       >
-        {LANG_OPTIONS.map(({ value, label }) => {
+        {languages.map(({ value, label }) => {
           const selected = language === value;
           return (
             <button

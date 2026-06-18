@@ -16,6 +16,8 @@ import {
   MoreHorizontal,
 } from 'lucide-react';
 import { TRANSLATIONS } from '../components/kiosk-types';
+import { useState, useEffect } from 'react';
+import { getDevices } from '../services/api';
 
 // value must match the keys in ISSUE_CATEGORIES (kiosk-types.js) so the next
 // screen can look up the right list of specific issues for whatever is picked here
@@ -43,12 +45,37 @@ const MOST_COMMON_DEVICE = 'Printer';
 export function DeviceSelection({ language, data, onChange, onNext }) {
   const t = TRANSLATIONS[language] ?? TRANSLATIONS.en;
 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [devices, setDevices] = useState([]);
+
+  // TODO: uncomment this when backend /api/devices is connected to the database
+  // useEffect(() => {
+  //   getDevices(language)
+  //     .then(data => {
+  //       setDevices(data);
+  //       setLoading(false);
+  //     })
+  //     .catch(err => {
+  //       setError(err.message);
+  //       setLoading(false);
+  //     });
+  // }, [language]);
+
+  // TEMPORARY: using hardcoded list until backend is ready
+  useEffect(() => {
+    setDevices(DEVICE_OPTIONS);
+    setLoading(false);
+  }, []);
+
   // tapping a device saves it to the report and immediately advances to the next screen
   const handleSelect = (value) => {
     onChange({ device: value });
     onNext();
   };
 
+  if (loading) return <div style={{ color: 'white', padding: '40px' }}>Loading...</div>;
+  if (error) return <div style={{ color: 'white', padding: '40px' }}>Error: {error}</div>;
   return (
     <div
       className="px-6 py-8"
@@ -82,7 +109,7 @@ export function DeviceSelection({ language, data, onChange, onNext }) {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {DEVICE_OPTIONS.map(({ value, icon: Icon }) => {
+        {devices.map(({ value, icon: Icon }) => {
           const selected = data.device === value;
           const isMostCommon = value === MOST_COMMON_DEVICE;
           return (
