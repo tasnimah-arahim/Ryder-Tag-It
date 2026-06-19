@@ -304,7 +304,9 @@ const server = http.createServer(async (req, res) => {
       const snData = await snRes.json();
       if (!snRes.ok) return send(res, snRes.status, { error: snData.error?.message || 'ServiceNow error' });
 
-      const devices = (snData.result ?? []).map(r => ({ value: r.device_type }));
+      const devices = (snData.result ?? []).map(r => ({
+        value: r.device_type?.display_value ?? r.device_type?.value ?? r.device_type,
+      }));
       return send(res, 200, devices);
     }
 
@@ -327,8 +329,15 @@ const server = http.createServer(async (req, res) => {
       const snData = await snRes.json();
       if (!snRes.ok) return send(res, snRes.status, { error: snData.error?.message || 'ServiceNow error' });
 
-      const issues = (snData.result ?? []).map(r => ({ en: r.issue_questions }));
+      const issues = (snData.result ?? []).map(r => ({
+        en: r.issue_questions?.display_value ?? r.issue_questions?.value ?? r.issue_questions,
+      }));
       return send(res, 200, issues);
+
+      const devices = (snData.result ?? []).map(r => ({
+        en: r.device_questions?.display_value ?? r.device_questions?.value ?? r.device_questions,
+      }));
+      return send(res, 200, devices);
     }
 
     if (method === 'POST' && pathname === '/api/submit') {
