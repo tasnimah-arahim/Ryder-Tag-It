@@ -17,8 +17,9 @@ function authedFetch(url, options = {}) {
   });
 }
 
-export async function getWarehouses() {
-  const res = await authedFetch(`${BASE_URL}/warehouses`);
+export async function getWarehouses(lang = 'en') {
+  const params = new URLSearchParams({ lang });
+  const res = await authedFetch(`${BASE_URL}/warehouses?${params}`);
   if (!res.ok) throw new Error(`Failed to fetch warehouses (${res.status})`);
   return res.json();
 }
@@ -52,11 +53,5 @@ export async function submitReport(reportData) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.error || `Submission failed (${res.status})`);
   }
-  return res.json();
-}
-
-// fetch list of warehouses (optional lang param for translated names)
-export async function getWarehouses(lang = 'en') {
-  const res = await fetch(`${BASE_URL}/warehouses?lang=${lang}`);
   return res.json();
 }

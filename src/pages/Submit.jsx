@@ -54,13 +54,6 @@ export function Submit({ language, data, onEdit, onSubmit }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError]           = useState(null);
 
-<<<<<<< Updated upstream
-  const locationParts = [
-    data.stationNumber    && `Station ${data.stationNumber}`,
-    data.workstationNumber && `WS ${data.workstationNumber}`,
-    data.dockDoorNumber   && `Door ${data.dockDoorNumber}`,
-  ].filter(Boolean).join(' · ');
-=======
   const locationParts = data.area === 'other'
     ? data.otherLocation
     : [
@@ -68,7 +61,6 @@ export function Submit({ language, data, onEdit, onSubmit }) {
         data.workstationNumber && `WS ${data.workstationNumber}`,
         data.dockDoorNumber && `Door ${data.dockDoorNumber}`,
       ].filter(Boolean).join(' · ');
->>>>>>> Stashed changes
 
   async function handleSubmit() {
     setSubmitting(true);

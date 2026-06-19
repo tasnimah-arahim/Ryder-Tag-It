@@ -25,12 +25,8 @@ const EMPTY_REPORT = {
   device: '',
   reporterName: '',
   issueCategory: '',
-<<<<<<< Updated upstream
   additionalComments: '',
-  warehouse: '',
-=======
   otherIssueDetails: '',
->>>>>>> Stashed changes
 };
 
 const SCREEN_ORDER = [
