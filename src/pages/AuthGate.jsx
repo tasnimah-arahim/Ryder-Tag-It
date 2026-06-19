@@ -52,25 +52,26 @@ export function AuthGate({ onSelectYubiKey, onSelectOkta }) {
           </p>
         </button>
 
-        {/* Auth0 / Enterprise option — secondary (ghost card) */}
+        {/* Auth0 / Enterprise option — secondary (now white card) */}
         <button
           onClick={onSelectOkta}
           className="rounded-2xl text-left transition-all active:scale-95"
           style={{
-            background: 'rgba(255,255,255,0.15)',
-            border: '2px solid rgba(255,255,255,0.3)',
+            background: 'white',
+            border: 'none',
             padding: 'clamp(18px, 3vh, 24px) clamp(20px, 3vw, 28px)',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
             cursor: 'pointer',
             width: '100%',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '6px' }}>
-            <Building2 size={22} style={{ color: 'white', flexShrink: 0 }} />
-            <span style={{ fontWeight: 700, fontSize: 'clamp(16px, 2.5vw, 20px)', color: 'white' }}>
+            <Building2 size={22} style={{ color: '#1a1a1a', flexShrink: 0 }} />
+            <span style={{ fontWeight: 700, fontSize: 'clamp(16px, 2.5vw, 20px)', color: '#1a1a1a' }}>
               Enterprise Sign In
             </span>
           </div>
-          <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 'clamp(13px, 1.8vw, 15px)', margin: '0 0 0 34px' }}>
+          <p style={{ color: '#6b6b6b', fontSize: 'clamp(13px, 1.8vw, 15px)', margin: '0 0 0 34px' }}>
             Sign in with your company account via Auth0
           </p>
         </button>
